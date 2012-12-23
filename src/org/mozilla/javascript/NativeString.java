@@ -161,6 +161,7 @@ final class NativeString extends IdScriptableObject
           case Id_toLocaleLowerCase: arity=0; s="toLocaleLowerCase"; break;
           case Id_toLocaleUpperCase: arity=0; s="toLocaleUpperCase"; break;
           case Id_trim:              arity=0; s="trim";              break;
+          case Id_iterator:          arity=0; s="iterator";          break;
           default: throw new IllegalArgumentException(String.valueOf(id));
         }
         initPrototypeMethod(STRING_TAG, id, s, arity);
@@ -394,6 +395,10 @@ final class NativeString extends IdScriptableObject
 
                     return str.substring(start, end);
                 }
+
+              case Id_iterator:
+                  return new NativeElementIterator(scope, thisObj);
+
             }
             throw new IllegalArgumentException(String.valueOf(id));
         }
@@ -678,6 +683,7 @@ final class NativeString extends IdScriptableObject
                 if (c=='r') { X="toString";id=Id_toString; }
                 else if (c=='s') { X="fontsize";id=Id_fontsize; }
                 else if (c=='u') { X="toSource";id=Id_toSource; }
+                else if (c=='a') { X="iterator";id=Id_iterator; }
                 break L;
             case 9: c=s.charAt(0);
                 if (c=='f') { X="fontcolor";id=Id_fontcolor; }
@@ -744,7 +750,8 @@ final class NativeString extends IdScriptableObject
         Id_toLocaleLowerCase         = 35,
         Id_toLocaleUpperCase         = 36,
         Id_trim                      = 37,
-        MAX_PROTOTYPE_ID             = Id_trim;
+        Id_iterator                  = 38,
+        MAX_PROTOTYPE_ID             = Id_iterator;
 
 // #/string_id_map#
 

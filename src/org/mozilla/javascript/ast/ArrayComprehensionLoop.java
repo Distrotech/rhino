@@ -51,7 +51,7 @@ public class ArrayComprehensionLoop extends ForInLoop {
                 + (isForEach()?"each ":"")
                 + "("
                 + iterator.toSource(0)
-                + " in "
+                + (isForOf()?" of ":" in ")
                 + iteratedObject.toSource(0)
                 + ")";
     }

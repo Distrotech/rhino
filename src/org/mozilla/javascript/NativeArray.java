@@ -206,6 +206,7 @@ public class NativeArray extends IdScriptableObject implements List
           case Id_some:           arity=1; s="some";           break;
           case Id_reduce:         arity=1; s="reduce";         break;
           case Id_reduceRight:    arity=1; s="reduceRight";    break;
+          case Id_iterator:       arity=0; s="iterator";       break;
           default: throw new IllegalArgumentException(String.valueOf(id));
         }
         initPrototypeMethod(ARRAY_TAG, id, s, arity);
@@ -319,6 +320,9 @@ public class NativeArray extends IdScriptableObject implements List
               case Id_reduce:
               case Id_reduceRight:
                 return reduceMethod(cx, id, scope, thisObj, args);
+
+              case Id_iterator:
+                return new NativeElementIterator(scope, thisObj);
             }
             throw new IllegalArgumentException(String.valueOf(id));
         }
@@ -1910,6 +1914,7 @@ public class NativeArray extends IdScriptableObject implements List
             case 8: c=s.charAt(3);
                 if (c=='o') { X="toSource";id=Id_toSource; }
                 else if (c=='t') { X="toString";id=Id_toString; }
+                else if (c=='r') { X="iterator";id=Id_iterator; }
                 break L;
             case 11: c=s.charAt(0);
                 if (c=='c') { X="constructor";id=Id_constructor; }
@@ -1948,8 +1953,9 @@ public class NativeArray extends IdScriptableObject implements List
         Id_some                 = 21,
         Id_reduce               = 22,
         Id_reduceRight          = 23,
+        Id_iterator             = 24,
 
-        MAX_PROTOTYPE_ID        = 23;
+        MAX_PROTOTYPE_ID        = 24;
 
 // #/string_id_map#
 
