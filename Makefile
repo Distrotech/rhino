@@ -1,14 +1,12 @@
 JARDIR = /usr/share/java
-RHINO = jsr173_1.0_api.jar
+RHINO = build/rhino1_7R4
 
 all:
 	ant jar
 
 install: all
 	install -d $(DESTDIR)$(JARDIR)
-	install -t $(DESTDIR)$(JARDIR) lib/*.jar
-	if [ -e $(DESTDIR)$(JARDIR)/js.jar ];then rm $(DESTDIR)$(JARDIR)/js.jar;fi
-	ln -s $(RHINO) $(DESTDIR)$(JARDIR)/js.jar
+	install -t $(DESTDIR)$(JARDIR) $(RHINO)/js.jar
 
 clean:
 	ant clean
