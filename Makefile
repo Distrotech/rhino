@@ -6,7 +6,7 @@ all:
 
 install: all
 	install -d $(DESTDIR)$(JARDIR)
-	install -t $(DESTDIR)$(JARDIR) $(RHINO)/js.jar
+	install -m 644 -t $(DESTDIR)$(JARDIR) $(RHINO)/js.jar
 
 clean:
 	ant clean
