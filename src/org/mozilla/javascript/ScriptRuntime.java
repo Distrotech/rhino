@@ -197,6 +197,7 @@ public class ScriptRuntime {
         NativeScript.init(scope, sealed);
 
         NativeIterator.init(scope, sealed); // Also initializes NativeGenerator
+        NativeElementIterator.init(scope, sealed);
 
         boolean withXml = cx.hasFeature(Context.FEATURE_E4X) &&
                           cx.getE4xImplementationFactory() != null;
@@ -2140,6 +2141,7 @@ public class ScriptRuntime {
     public static final int ENUMERATE_KEYS_NO_ITERATOR = 3;
     public static final int ENUMERATE_VALUES_NO_ITERATOR = 4;
     public static final int ENUMERATE_ARRAY_NO_ITERATOR = 5;
+    public static final int ENUMERATE_VALUES_IN_ORDER = 6;
 
     /**
      * @deprecated Use {@link #enumInit(Object, Context, Scriptable, int)} instead
@@ -2162,20 +2164,42 @@ public class ScriptRuntime {
         }
         x.enumType = enumType;
         x.iterator = null;
-        if (enumType != ENUMERATE_KEYS_NO_ITERATOR &&
-            enumType != ENUMERATE_VALUES_NO_ITERATOR &&
-            enumType != ENUMERATE_ARRAY_NO_ITERATOR)
-        {
+
+        switch (enumType) {
+        case ENUMERATE_KEYS:
+        case ENUMERATE_VALUES:
+        case ENUMERATE_ARRAY:
             x.iterator = toIterator(cx, x.obj.getParentScope(), x.obj,
                                     enumType == ScriptRuntime.ENUMERATE_KEYS);
-        }
-        if (x.iterator == null) {
-            // enumInit should read all initial ids before returning
-            // or "for (a.i in a)" would wrongly enumerate i in a as well
-            enumChangeObject(x);
+            break;
+        case ENUMERATE_VALUES_IN_ORDER:
+            enumInitInOrder(cx, x);
+            break;
+        default:
+            break;
         }
 
+        if (x.iterator == null) {
+            enumChangeObject(x);
+        }
         return x;
+    }
+
+    private static void enumInitInOrder(Context cx, IdEnumeration x) {
+        if (x.obj == null || !ScriptableObject.hasProperty(x.obj, NativeElementIterator.ITERATOR_FUNCTION_NAME)) {
+            throw typeError1("msg.not.iterable", toString(x.obj));
+        }
+        Object iterator = ScriptableObject.getProperty(x.obj, NativeElementIterator.ITERATOR_FUNCTION_NAME);
+        if (!(iterator instanceof Callable)) {
+            throw typeError1("msg.not.iterable", toString(x.obj));       }
+        Callable f = (Callable) iterator;
+        Scriptable scope = x.obj.getParentScope();
+        Object[] args = new Object[] {};
+        Object v = f.call(cx, scope, x.obj, args);
+        if (!(v instanceof Scriptable)) {
+            throw typeError1("msg.not.iterable", toString(x.obj));
+        }
+        x.iterator = (Scriptable) v;
     }
 
     public static void setEnumNumbers(Object enumObj, boolean enumNumbers) {
